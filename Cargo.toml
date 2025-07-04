@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 #web
 salvo = { version = "0.79.0", features = ["catch-panic", "cors"] }
-tokio = { version = "1", features = ["macros"] }
+tokio = { version = "1", features = ["full"] }
 
 #配置
 config = "0.15.10"
@@ -30,6 +30,10 @@ rbdc-pg = { version = "4.6" }
 #log日志支持(rbatis必须)
 log = "0.4"
 fast_log="1.2.2"
+
+#redis
+redis = { version = "0.32.3", features = ["tokio-comp"] ,optional = true}
+deadpool-redis = "0.21.1"
 
 
 [profile.dev]

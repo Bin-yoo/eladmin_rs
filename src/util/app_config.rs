@@ -10,7 +10,8 @@ pub static APP_CONFIG: LazyLock<AppConfig> = LazyLock::new(|| AppConfig::default
 pub struct AppConfig {
     pub database: DatabaseConfig,
     pub webserver:  WebServerConfig,
-    pub rsa: RsaConfig
+    pub rsa: RsaConfig,
+    pub redis: RedisConfig,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -28,6 +29,14 @@ pub struct DatabaseConfig {
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 pub struct RsaConfig {
     pub private_key: String
+}
+
+#[derive(Debug, Clone, Default, Deserialize, Serialize)]
+pub struct RedisConfig {
+    pub url: String,
+    pub database: u32,
+    pub timeout_seconds: u32,
+    pub max_size: u32
 }
 
 impl AppConfig {
