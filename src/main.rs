@@ -25,8 +25,17 @@ async fn main() {
     let service = Service::new(router)
     // 跨域配置
         .hoop(util::app_config::get_cors_config());
+    
+    let server = Server::new(acceptor);
+    // 获取服务器的句柄
+    let handler = server.handle();
+    // 优雅停机
+    tokio::spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+        handler.stop_graceful(None);
+    });
     // Start serving requests
-    Server::new(acceptor).serve(service).await;
+    server.serve(service).await;
 }
 
 // Handler for English greeting
