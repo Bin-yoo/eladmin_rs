@@ -35,6 +35,11 @@ fast_log="1.2.2"
 redis = { version = "0.32.3", features = ["tokio-comp"] ,optional = true}
 deadpool-redis = "0.21.1"
 
+# uuid
+uuid = { version = "1.17.0", features = ["v4", "serde", "std"] }
+captcha-rs = "0.2.11"
+
+anyhow = "1.0"
 
 [profile.dev]
 env = { CONFIG = "dev" }

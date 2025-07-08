@@ -1,42 +1,20 @@
 use std::{env, sync::LazyLock};
 use salvo::{cors::{Cors, CorsHandler}, http::Method};
-
 use config::{Config, File};
 use serde::{Deserialize, Serialize};
+
+use crate::config::{database_config, jwt_config, login_properties, redis_config, rsa_config, web_server_config};
 
 pub static APP_CONFIG: LazyLock<AppConfig> = LazyLock::new(|| AppConfig::default());
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
-    pub database: DatabaseConfig,
-    pub webserver:  WebServerConfig,
-    pub rsa: RsaConfig,
-    pub redis: RedisConfig,
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct WebServerConfig {
-    pub port: String,
-}
-
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
-pub struct DatabaseConfig {
-    pub url: String,
-    pub pool_size: u64,
-    pub timeout_seconds: u64
-}
-
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
-pub struct RsaConfig {
-    pub private_key: String
-}
-
-#[derive(Debug, Clone, Default, Deserialize, Serialize)]
-pub struct RedisConfig {
-    pub url: String,
-    pub database: u32,
-    pub timeout_seconds: u32,
-    pub max_size: u32
+    pub database: database_config::DatabaseConfig,
+    pub webserver: web_server_config::WebServerConfig,
+    pub rsa: rsa_config::RsaConfig,
+    pub redis: redis_config::RedisConfig,
+    pub login: login_properties::LoginProperties,
+    pub jwt: jwt_config::JwtConfig
 }
 
 impl AppConfig {
@@ -53,12 +31,11 @@ impl AppConfig {
             .expect("Could not load config file");
 
         let app_config = settings.try_deserialize::<AppConfig>()
-        .expect("Failed to deserialize config");
+            .expect("Failed to deserialize config");
 
         tracing::info!("Using config file: {}", config_file);
         app_config
     }
-
 }
 
 impl Default for AppConfig {

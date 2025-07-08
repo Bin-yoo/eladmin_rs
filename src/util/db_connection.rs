@@ -19,5 +19,6 @@ pub async fn init_rbatis() {
         db_cfg.timeout_seconds,
     ))).await;
     
-    tracing::info!("[eladmin_rs] rbatis pool init success! pool state = {:?}", pool.state().await);
+    tracing::info!("[eladmin_rs] rbatis pool init success!");
+    tracing::info!("[eladmin_rs] rbatis pool state = {:?}", pool.state().await);
 }
