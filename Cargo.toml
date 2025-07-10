@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 #web
-salvo = { version = "0.79.0", features = ["catch-panic", "cors"] }
+salvo = { version = "0.79.0", features = ["catch-panic", "cors", "anyhow"] }
 tokio = { version = "1", features = ["full"] }
 
 #配置
@@ -37,9 +37,18 @@ deadpool-redis = "0.21.1"
 
 # uuid
 uuid = { version = "1.17.0", features = ["v4", "serde", "std"] }
+# 验证码
 captcha-rs = "0.2.11"
-
+# 错误处理
 anyhow = "1.0"
+thiserror = "2.0.12"
+
+# jwt
+jsonwebtoken = "9"
+# rsa
+rsa = "0.9.8"
+base64 = "0.22.1"
+rand = "0.8"
 
 [profile.dev]
 env = { CONFIG = "dev" }

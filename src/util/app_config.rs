@@ -1,4 +1,4 @@
-use std::{env, sync::LazyLock};
+use std::{env, fs, sync::LazyLock};
 use salvo::{cors::{Cors, CorsHandler}, http::Method};
 use config::{Config, File};
 use serde::{Deserialize, Serialize};
@@ -19,14 +19,27 @@ pub struct AppConfig {
 
 impl AppConfig {
     fn load_yml_config() -> AppConfig {
-        let config_mode = env::var("CONFIG").unwrap_or("dev".to_string());
+        let config_mode = env::var("CONFIG")
+            .map(|s| if s.is_empty() { "dev".to_string() } else { s })
+            .unwrap_or("dev".to_string());
+        // 获取当前工作目录（适用于开发环境）
+        let current_dir = env::current_dir().expect("无法获取当前工作目录");
+
+        // 构建配置文件路径
         let config_file = match config_mode.as_str() {
-            "release" => "config/config-release.yaml",
-            _ => "config/config-dev.yaml",
+            "release" => "config-release.yaml",
+            _ => "config-dev.yaml",
         };
+        let config_path = current_dir.join("config").join(config_file);
+        tracing::info!("config_path========== {:?}", config_path);
+
+        // 检查文件是否存在，避免 Config::builder 静默失败
+        if !fs::metadata(&config_path).map_or(false, |m| m.is_file()) {
+            panic!("Config file does not exist or is not a regular file: {}", config_file);
+        }
         
         let settings = Config::builder()
-            .add_source(File::with_name(config_file))
+            .add_source(File::from(config_path))
             .build()
             .expect("Could not load config file");
 

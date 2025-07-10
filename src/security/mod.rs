@@ -1,1 +1,2 @@
-pub mod authorization_controller;
+pub mod controller;
+pub mod domain;

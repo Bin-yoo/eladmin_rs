@@ -3,7 +3,7 @@ use std::time::Duration;
 use rbatis::RBatis;
 use rbdc_pg::driver::PgDriver;
 
-use crate::util::app_config::APP_CONFIG;
+use crate::APP_CONFIG;
 
 pub static RB: LazyLock<RBatis> = LazyLock::new(|| RBatis::new());
 

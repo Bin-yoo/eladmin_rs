@@ -1,6 +1,6 @@
 use salvo::prelude::*;
 
-use crate::security::authorization_controller;
+use crate::security::controller::authorization_controller;
 
 pub fn create_router() -> Router {
     Router::new()

@@ -3,7 +3,7 @@ use std::sync::OnceLock;
 use anyhow::{Ok, Result};
 use deadpool_redis::{redis::{cmd, FromRedisValue, ToRedisArgs}, Config, Pool, PoolError, Runtime};
 
-use crate::util::app_config::APP_CONFIG;
+use crate::APP_CONFIG;
 
 pub static REDIS_INSTANCE: OnceLock<RedisInstance> = OnceLock::new();
 
