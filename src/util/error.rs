@@ -25,18 +25,18 @@ pub enum AppError {
 #[async_trait]
 impl Writer for AppError {
     async fn write(self, _req: &mut Request, _depot: &mut Depot, res: &mut Response) {
-        let (code, msg) = match self {
-            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
-            AppError::InternalServerError(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
-            AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized".to_string()),
-            AppError::Forbidden => (StatusCode::FORBIDDEN, "Forbidden".to_string()),
-            AppError::UsernameNotFound => (StatusCode::BAD_REQUEST, "Username not found".to_string()),
+        let code = match &self {
+            AppError::BadRequest(_) => StatusCode::BAD_REQUEST,
+            AppError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            AppError::Unauthorized => StatusCode::UNAUTHORIZED,
+            AppError::Forbidden => StatusCode::FORBIDDEN,
+            AppError::UsernameNotFound => StatusCode::BAD_REQUEST
         };
 
         res.status_code(code);
         res.render(Json(GlobalErrorResp {
             status: code.as_u16(),
-            message: msg,
+            message: format!("{}", &self),
             timestamp: chrono::Utc::now(),
         }));
     }

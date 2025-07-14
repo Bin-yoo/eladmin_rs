@@ -21,7 +21,11 @@ pub async fn username_password_authentication(username: &str, password: &str) ->
 
 /// 校验密码
 fn verify_password(db_pass: &str, input_pass: &str) -> bool {
-    bcrypt::verify(input_pass, db_pass).is_ok()
+    if let Ok(is_match) = bcrypt::verify(input_pass, db_pass) {
+        is_match
+    } else {
+        false
+    }
 }
 
 /// 通过用户名查询用户表
