@@ -1,13 +1,23 @@
+use chrono::Utc;
 use salvo::{async_trait, http::StatusCode, writing::Json, Depot, Request, Response, Writer};
 use serde::Serialize;
 
 #[derive(thiserror::Error, Debug, Serialize)]
 pub enum AppError {
     #[error("Bad request: {0}")]
-    BadRequest(String, String),
+    BadRequest(String),
 
     #[error("Internal server error: {0}")]
     InternalServerError(String),
+
+    #[error("Unauthorized")]
+    Unauthorized,
+
+    #[error("Forbidden")]
+    Forbidden,
+
+    #[error("Username not found")]
+    UsernameNotFound,
 
     // 可以继续加其他类型的错误...
 }
@@ -15,16 +25,19 @@ pub enum AppError {
 #[async_trait]
 impl Writer for AppError {
     async fn write(self, _req: &mut Request, _depot: &mut Depot, res: &mut Response) {
-        let (code, msg, data) = match &self {
-            AppError::BadRequest(msg, data) => (StatusCode::BAD_REQUEST, msg.to_string(), data.to_string()),
-            AppError::InternalServerError(data) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error".to_string(), data.to_string()),
+        let (code, msg) = match self {
+            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg,),
+            AppError::InternalServerError(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
+            AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized".to_string()),
+            AppError::Forbidden => (StatusCode::FORBIDDEN, "Forbidden".to_string()),
+            AppError::UsernameNotFound => (StatusCode::BAD_REQUEST, "Username not found".to_string()),
         };
 
         res.status_code(code);
         res.render(Json(GlobalErrorResp {
-            code: code.as_u16(),
-            msg,
-            data,
+            status: code.as_u16(),
+            message: msg,
+            timestamp: chrono::Utc::now(),
         }));
     }
 }
@@ -35,9 +48,27 @@ impl From<anyhow::Error> for AppError {
     }
 }
 
+impl From<salvo::http::ParseError> for AppError {
+    fn from(e: salvo::http::ParseError) -> Self {
+        AppError::BadRequest(format!("Request parse error: {}", e))
+    }
+}
+
+impl From<rbs::Error> for AppError {
+    fn from(e: rbs::Error) -> Self {
+        AppError::InternalServerError(format!("[Database Error] {}", e))
+    }
+}
+
+impl From<serde_json::Error> for AppError {
+    fn from(e: serde_json::Error) -> Self {
+        AppError::BadRequest(format!("JSON parse error: {}", e))
+    }
+}
+
 #[derive(Serialize)]
 struct GlobalErrorResp {
-    code: u16,
-    msg: String,
-    data: String,
+    status: u16,
+    message: String,
+    timestamp: chrono::DateTime<Utc>
 }

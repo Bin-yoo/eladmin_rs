@@ -34,9 +34,9 @@ login:
     #  登录图形验证码有效时间/分钟
     expiration: 2
     #  验证码高度
-    width: 111
+    width: 130
     #  验证码宽度
-    height: 36
+    height: 40
     # 内容长度
     length: 4
     # 字体名称，为空则使用默认字体

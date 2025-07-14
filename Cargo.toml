@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 #web
-salvo = { version = "0.79.0", features = ["catch-panic", "cors", "anyhow"] }
+salvo = { version = "0.79.0", features = ["full"] }
 tokio = { version = "1", features = ["full"] }
 
 #配置
@@ -49,6 +49,9 @@ jsonwebtoken = "9"
 rsa = "0.9.8"
 base64 = "0.22.1"
 rand = "0.8"
+
+# 密码加密
+bcrypt = "0.17.0"
 
 [profile.dev]
 env = { CONFIG = "dev" }

@@ -1,4 +1,5 @@
 use salvo::prelude::*;
+use salvo::logging::Logger;
 use tokio::signal;
 
 use eladmin_rs::util;
@@ -24,7 +25,10 @@ async fn main() {
     let router = util::routes::create_router();
 
     let service = Service::new(router)
-    // 跨域配置
+        // 添加中间件
+        // 日志中间件
+        .hoop(Logger::new())
+        // 跨域配置
         .hoop(util::app_config::get_cors_config());
     
     let server = Server::new(acceptor);
