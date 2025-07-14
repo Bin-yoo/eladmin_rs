@@ -3,7 +3,9 @@ use std::collections::HashSet;
 use rbs::value;
 use anyhow::Result;
 
-use crate::{security::{domain::{dto::sys_user::SysUserDTO, entity::sys_role::RoleSmallDto}, service::sys_menu_service}, RB};
+use crate::RB;
+use crate::system::domain::{dto::sys_user::SysUserDTO, entity::sys_role::RoleSmallDto};
+use crate::system::service::sys_menu_service;
 
 /// 通过用户ID查询角色
 pub async fn find_by_user_id(id:  &i64) -> Result<Vec<RoleSmallDto>> {

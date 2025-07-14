@@ -7,7 +7,9 @@ use eladmin_rs::util;
 #[tokio::main]
 async fn main() {
     // 初始化一个默认的订阅器，将日志输出到控制台
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
 
     // 创建监听器
     let ip = "127.0.0.1";

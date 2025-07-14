@@ -1,6 +1,7 @@
 use rbs::value;
 
-use crate::{security::domain::{dto::sys_user::SysUserDTO, entity::{sys_dept::SysDept, sys_user::SysUser}}, RB};
+use crate::RB;
+use crate::system::domain::{dto::sys_user::SysUserDTO, entity::{sys_dept::SysDept, sys_user::SysUser}};
 
 
 /// 通过用户名查询用户表

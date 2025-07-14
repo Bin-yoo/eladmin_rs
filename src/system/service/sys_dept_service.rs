@@ -3,7 +3,8 @@ use std::collections::HashSet;
 use rbs::value;
 use anyhow::{Ok, Result};
 
-use crate::{security::domain::entity::sys_dept::{DeptDto, SysDept}, RB};
+use crate::RB;
+use crate::system::domain::entity::sys_dept::{DeptDto, SysDept};
 
 
 /// 通过角色ID查询部门

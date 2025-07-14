@@ -26,7 +26,7 @@ pub enum AppError {
 impl Writer for AppError {
     async fn write(self, _req: &mut Request, _depot: &mut Depot, res: &mut Response) {
         let (code, msg) = match self {
-            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg,),
+            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             AppError::InternalServerError(e) => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
             AppError::Unauthorized => (StatusCode::UNAUTHORIZED, "Unauthorized".to_string()),
             AppError::Forbidden => (StatusCode::FORBIDDEN, "Forbidden".to_string()),

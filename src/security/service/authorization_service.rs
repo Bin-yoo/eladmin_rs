@@ -4,7 +4,10 @@ use chrono::Utc;
 use anyhow::Result;
 use jsonwebtoken::{encode, EncodingKey, Header};
 
-use crate::{security::{domain::{dto::{jwt_user::{JwtClaims, JwtUserDTO}, sys_user::SysUserDTO}, entity::sys_role::DataScopeEnum}, service::{sys_dept_service, sys_role_service, sys_user_service}}, AppError, APP_CONFIG};
+use crate::{AppError, APP_CONFIG};
+use crate::system::domain::{dto::sys_user::SysUserDTO, entity::sys_role::DataScopeEnum};
+use crate::system::service::{sys_dept_service, sys_role_service, sys_user_service};
+use crate::security::domain::dto::jwt_user::{JwtClaims, JwtUserDTO};
 
 /// 账号密码认证
 pub async fn username_password_authentication(username: &str, password: &str) -> Result<JwtUserDTO, AppError> {

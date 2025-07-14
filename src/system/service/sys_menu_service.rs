@@ -1,7 +1,8 @@
 use rbs::value;
 use anyhow::Result;
 
-use crate::{security::domain::entity::sys_menu::SysMenu, RB};
+use crate::RB;
+use crate::system::domain::entity::sys_menu::SysMenu;
 
 /// 根据角色ID列表查询角色与菜单的映射关系
 pub async fn find_by_role_ids(role_ids: &[i64]) -> Result<Vec<SysMenu>> {

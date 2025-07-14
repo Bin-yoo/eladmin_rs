@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::security::domain::dto::sys_user::SysUserDTO;
+use crate::system::domain::dto::sys_user::SysUserDTO;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JwtClaims {

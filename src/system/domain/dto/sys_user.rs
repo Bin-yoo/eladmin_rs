@@ -2,7 +2,7 @@ use deadpool_redis::redis::ToRedisArgs;
 use serde::{Deserialize, Serialize};
 use std::option::Option;
 
-use crate::security::domain::entity::sys_user::SysUser;
+use crate::system::domain::entity::sys_user::SysUser;
 
 /// 用户DTO
 #[derive(Debug, Clone, Serialize, Deserialize)]
