@@ -3,7 +3,7 @@ use salvo::{cors::{Cors, CorsHandler}, http::Method};
 use config::{Config, File};
 use serde::{Deserialize, Serialize};
 
-use crate::config::{database_config, jwt_config, login_properties, redis_config, rsa_config, web_server_config};
+use crate::config::{database_config, jwt_config, login_config, redis_config, rsa_config, web_server_config};
 
 pub static APP_CONFIG: LazyLock<AppConfig> = LazyLock::new(|| AppConfig::default());
 
@@ -13,7 +13,7 @@ pub struct AppConfig {
     pub webserver: web_server_config::WebServerConfig,
     pub rsa: rsa_config::RsaConfig,
     pub redis: redis_config::RedisConfig,
-    pub login: login_properties::LoginProperties,
+    pub login: login_config::LoginProperties,
     pub jwt: jwt_config::JwtConfig
 }
 

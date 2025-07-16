@@ -1,7 +1,9 @@
-use serde::{Serialize, Deserialize};
+use std::fmt::{Debug, Display, Formatter};
+
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use rbatis::{crud, rbdc::DateTime};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SysRole {
     /// ID
     pub role_id: i64,
@@ -16,7 +18,7 @@ pub struct SysRole {
     pub description: Option<String>,
 
     /// 数据权限（"全部", "本级", "自定义"）
-    pub data_scope: String,
+    pub data_scope: DataScope,
 
     /// 创建者
     pub create_by: Option<String>,
@@ -33,8 +35,8 @@ pub struct SysRole {
 
 crud!(SysRole{});
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum DataScopeEnum {
+#[derive(Clone)]
+pub enum DataScope {
     /// 全部数据权限
     All,
     /// 本级及以下数据权限
@@ -43,42 +45,54 @@ pub enum DataScopeEnum {
     Customize,
 }
 
-impl DataScopeEnum {
-    pub fn value(&self) -> &'static str {
-        match self {
-            DataScopeEnum::All => "全部",
-            DataScopeEnum::ThisLevel => "本级",
-            DataScopeEnum::Customize => "自定义",
-        }
-    }
-
-    pub fn description(&self) -> &'static str {
-        match self {
-            DataScopeEnum::All => "全部的数据权限",
-            DataScopeEnum::ThisLevel => "自己部门的数据权限",
-            DataScopeEnum::Customize => "自定义的数据权限",
-        }
-    }
-
-    pub fn find(value: &str) -> Option<Self> {
+impl From<&str> for DataScope {
+    fn from(value: &str) -> Self {
         match value {
-            "全部" => Some(DataScopeEnum::All),
-            "本级" => Some(DataScopeEnum::ThisLevel),
-            "自定义" => Some(DataScopeEnum::Customize),
-            _ => None,
+            "全部" => DataScope::All,
+            "本级" => DataScope::ThisLevel,
+            "自定义" => DataScope::Customize,
+            _ => DataScope::All
         }
-    }
-
-    /// 获取所有枚举值列表，常用于下拉选项等前端展示场景
-    pub fn values() -> Vec<&'static str> {
-        vec!["全部", "本级", "自定义"]
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RoleSmallDto {
-    pub id: i64,
-    pub name: String,
-    pub level: i32,
-    pub data_scope: String,
+impl From<DataScope> for &str {
+    fn from(value: DataScope) -> Self {
+        match value {
+            DataScope::All => "全部",
+            DataScope::ThisLevel => "本级",
+            DataScope::Customize => "自定义",
+        }
+    }
+}
+
+impl Debug for DataScope {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(<&str>::from(self.clone()))
+    }
+}
+
+impl Display for DataScope {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(<&str>::from(self.clone()))
+    }
+}
+
+impl serde::Serialize for DataScope {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.to_string().serialize(serializer)
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for DataScope {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let v = String::deserialize(deserializer)?;
+        Ok(DataScope::from(v.as_str()))
+    }
 }

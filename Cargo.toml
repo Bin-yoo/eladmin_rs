@@ -33,7 +33,7 @@ fast_log="1.2.2"
 
 #redis
 redis = { version = "0.32.3", features = ["tokio-comp"] ,optional = true}
-deadpool-redis = "0.21.1"
+deadpool-redis = { version = "0.21.1", features = ["json"] }
 
 # uuid
 uuid = { version = "1.17.0", features = ["v4", "serde", "std"] }

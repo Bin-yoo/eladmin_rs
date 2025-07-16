@@ -25,7 +25,7 @@ pub struct LoginCodeConfig {
     pub code_type: LoginCodeType,
 
     /// 登录图形验证码有效时间（单位：分钟）
-    pub expiration: u64,
+    pub expiration: i64,
 
     /// 验证码高度
     pub height: u32,

@@ -4,7 +4,8 @@ use rbs::value;
 use anyhow::Result;
 
 use crate::RB;
-use crate::system::domain::{dto::sys_user::SysUserDTO, entity::sys_role::RoleSmallDto};
+use crate::system::domain::dto::sys_user::SysUserDTO;
+use crate::system::domain::dto::sys_role::RoleSmallDto;
 use crate::system::service::sys_menu_service;
 
 /// 通过用户ID查询角色

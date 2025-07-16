@@ -1,4 +1,4 @@
-use deadpool_redis::redis::ToRedisArgs;
+use deadpool_redis::redis::{from_redis_value, FromRedisValue, ToRedisArgs};
 use serde::{Deserialize, Serialize};
 use std::option::Option;
 
@@ -20,7 +20,7 @@ pub struct SysUserDTO {
     pub username: String,
 
     /// 密码
-    #[serde(skip_serializing)]
+    #[serde(skip_serializing, skip_deserializing)]
     pub password: String,
 
     /// 昵称
@@ -84,6 +84,14 @@ impl ToRedisArgs for SysUserDTO {
     {
         // 序列化存到redis中
         out.write_arg(serde_json::to_string(self).unwrap().as_bytes());
+    }
+}
+
+impl FromRedisValue for SysUserDTO {
+    fn from_redis_value(v: &deadpool_redis::redis::Value) -> deadpool_redis::redis::RedisResult<Self> {
+        let v: String = from_redis_value(v)?;
+        serde_json::from_slice::<SysUserDTO>(v.as_bytes())
+            .map_err(deadpool_redis::redis::RedisError::from)
     }
 }
 

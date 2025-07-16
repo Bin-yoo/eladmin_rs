@@ -65,8 +65,9 @@ pub async fn login(req: &mut Request) -> Result<Json<LoginRespVo>, AppError> {
     // 账号密码认证
     let jwt_user = authorization_service::username_password_authentication(&payload.username, &password).await?;
     // 生成 JWT Token
-    let token = format!("{} {}", APP_CONFIG.jwt.token_start_with.clone(), authorization_service::generate_jwt_token(&jwt_user)?);
-    let cache_key = format!("{}{}", APP_CONFIG.jwt.online_key.clone(), uuid::Uuid::new_v4().to_string());
+    let token_id = uuid::Uuid::new_v4().to_string();
+    let cache_key = format!("{}{}", APP_CONFIG.jwt.online_key.clone(), token_id);
+    let token = format!("{} {}", APP_CONFIG.jwt.token_start_with.clone(), authorization_service::generate_jwt_token(&jwt_user, &token_id)?);
     // 缓存用户信息
     RedisInstance::set_with_expiration(&cache_key, &jwt_user.user, APP_CONFIG.jwt.token_validity_in_seconds / 1000).await?;
 

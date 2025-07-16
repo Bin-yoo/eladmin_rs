@@ -71,8 +71,6 @@ impl RedisInstance {
         Ok(conn)
     }
 
-    /// 设置键值对缓存，并设置过期时间
-    ///
     /// 将指定的键值对存储到 Redis 中，并设置过期时间。
     ///
     /// # 参数
@@ -88,10 +86,11 @@ impl RedisInstance {
     /// ```rust
     /// use deadpool_redis::redis::cmd;
     ///
-    /// let redis = RedisInstance::new();
-    /// redis.set_with_expiration("test_key", "60", 60).await.unwrap();
+    /// RedisInstance::init_redis();
+    /// RedisInstance::set_with_expiration("test_key_with_ttl", "60", 60).await.unwrap();
+    /// assert_eq!(RedisInstance::get_ttl("test_key_with_ttl").await.unwrap(), Some(60));
     /// ```
-    pub async fn set_with_expiration<T>(key: &str, value: T, expiration: u64) -> Result<()>
+    pub async fn set_with_expiration<T>(key: &str, value: T, expiration: i64) -> Result<()>
     where
         T: ToRedisArgs,
     {
@@ -102,13 +101,10 @@ impl RedisInstance {
             .arg(value)
             .arg("EX").arg(expiration)
             .query_async::<()>(&mut conn)
-            .await
-            .map_err(|e| e);
+            .await?;
         Ok(())
     }
 
-    /// 设置键值对缓存
-    ///
     /// 将指定的键值对存储到 Redis 中，不设置过期时间。
     ///
     /// # 参数
@@ -123,8 +119,8 @@ impl RedisInstance {
     /// ```rust
     /// use deadpool_redis::redis::cmd;
     ///
-    /// let redis = RedisInstance::new();
-    /// redis.set("test_key", "42").await.unwrap();
+    /// RedisInstance::init_redis();
+    /// RedisInstance::set("test_key", "42").await.unwrap();
     /// ```
     pub async fn set<T>(key: &str, value: T) -> Result<()>
     where
@@ -136,13 +132,10 @@ impl RedisInstance {
             .arg(key)
             .arg(value)
             .query_async::<()>(&mut conn)
-            .await
-            .map_err(|e| e);
+            .await?;
         Ok(())
     }
 
-    /// 获取键对应的值
-    ///
     /// 从 Redis 中获取指定键的值。
     ///
     /// # 参数
@@ -157,8 +150,8 @@ impl RedisInstance {
     /// ```rust
     /// use deadpool_redis::redis::cmd;
     ///
-    /// let redis = RedisInstance::new();
-    /// let value = redis.get::<String>("test_key").await.unwrap();
+    /// RedisInstance::init_redis();
+    /// let value: Option<String> = RedisInstance::get("test_key").await.unwrap();
     /// assert_eq!(value, Some("42".to_string()));
     /// ```
     pub async fn get<T>(key: &str) -> Result<Option<T>>
@@ -168,6 +161,53 @@ impl RedisInstance {
         let mut conn = RedisInstance::get_connection().await?;
         let value: Option<T> = cmd("GET").arg(key).query_async(&mut conn).await?;
         Ok(value)
+    }
+    
+    /// 获取键对应的剩余生存时间
+    ///
+    /// # 参数
+    /// - `key`：Redis 中的键，字符串切片类型。
+    ///
+    /// # 返回值
+    /// - `Ok(Some(i64))`：成功获取到的剩余的生存时间。
+    /// - `Err(RedisError)`：操作失败时返回的错误信息。
+    ///
+    /// # 示例
+    /// ```rust
+    /// use deadpool_redis::redis::cmd;
+    ///
+    /// RedisInstance::init_redis();
+    /// RedisInstance::set_with_expiration("test_key_with_ttl", "60", 60).await.unwrap();
+    /// assert_eq!(RedisInstance::get_ttl("test_key_with_ttl").await.unwrap(), Some(60));
+    /// ```
+    pub async fn get_ttl(key: &str) -> Result<Option<i64>> {
+        let mut conn = RedisInstance::get_connection().await?;
+        let value: Option<i64> = cmd("TTL").arg(key).query_async(&mut conn).await?;
+        Ok(value)
+    }
+    
+    /// 给redis某个key设置过期时间
+    ///
+    /// # 参数
+    /// - `key`：Redis 中的键，字符串切片类型。
+    ///
+    /// # 返回值
+    /// - `Ok(()))`：设置ttl成功。
+    /// - `Err(RedisError)`：操作失败时返回的错误信息。
+    ///
+    /// # 示例
+    /// ```rust
+    /// use deadpool_redis::redis::cmd;
+    ///
+    /// RedisInstance::init_redis();
+    /// RedisInstance::set("test_key_with_ttl", "60").await.unwrap();
+    /// RedisInstance::expire("test_key_with_ttl", 60).await.unwrap();
+    /// assert_eq!(RedisInstance::get_ttl("test_key_with_ttl").await.unwrap(), Some(60));
+    /// ``` 
+    pub async fn expire(key: &str, renew: i64) -> Result<()> {
+        let mut conn = RedisInstance::get_connection().await?;
+        cmd("EXPIRE").arg(key).arg(renew).query_async::<()>(&mut conn).await?;
+        Ok(())
     }
 }
 
@@ -195,6 +235,16 @@ mod tests {
     async fn test_redis_set_with_ttl() {
         RedisInstance::init_redis();
         RedisInstance::set_with_expiration("test_key_with_ttl", "60", 60).await.unwrap();
+        println!("ttl= {:?}", RedisInstance::get_ttl("test_key_with_ttl").await.unwrap())
+    }
+
+    #[tokio::test]
+    async fn test_redis_set_expire() {
+        RedisInstance::init_redis();
+        RedisInstance::set("test_key_with_ttl", "60").await.unwrap();
+        RedisInstance::expire("test_key_with_ttl", 60).await.unwrap();
+        // println!("ttl= {:?}", RedisInstance::get_ttl("test_key_with_ttl").await.unwrap());
+        assert_eq!(RedisInstance::get_ttl("test_key_with_ttl").await.unwrap(), Some(60));
     }
 
     #[tokio::test]

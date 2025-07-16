@@ -3170,6 +3170,8 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite",
  "ryu",
+ "serde",
+ "serde_json",
  "socket2",
  "tokio",
  "tokio-util",

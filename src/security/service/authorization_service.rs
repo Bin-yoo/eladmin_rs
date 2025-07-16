@@ -5,7 +5,7 @@ use anyhow::Result;
 use jsonwebtoken::{encode, EncodingKey, Header};
 
 use crate::{AppError, APP_CONFIG};
-use crate::system::domain::{dto::sys_user::SysUserDTO, entity::sys_role::DataScopeEnum};
+use crate::system::domain::{dto::sys_user::SysUserDTO, entity::sys_role::DataScope};
 use crate::system::service::{sys_dept_service, sys_role_service, sys_user_service};
 use crate::security::domain::dto::jwt_user::{JwtClaims, JwtUserDTO};
 
@@ -55,22 +55,17 @@ async fn get_dept_ids(user: &SysUserDTO) -> Result<Vec<i64>> {
         // 存储部门ID
         let mut dept_ids: HashSet<i64> = HashSet::new();
         for role in roles {
-            if let Some(data_scope_enum) = DataScopeEnum::find(&role.data_scope)
-            {
-                match data_scope_enum {
-                    DataScopeEnum::ThisLevel => match &user.dept {
-                        Some(dept) => {
-                            dept_ids.insert(dept.id.clone());
-                        },
-                        None => {}
+            match &role.data_scope {
+                DataScope::ThisLevel => match &user.dept {
+                    Some(dept) => {
+                        dept_ids.insert(dept.id.clone());
                     },
-                    DataScopeEnum::Customize => {
-                        get_customize(&mut dept_ids, role.id).await?;
-                    },
-                    _ => break
-                }
-            } else {
-                return Err(anyhow::anyhow!("数据权限异常"));
+                    None => {}
+                },
+                DataScope::Customize => {
+                    get_customize(&mut dept_ids, role.id).await?;
+                },
+                _ => break
             }
         }
         let dept_ids = Vec::from_iter(dept_ids);
@@ -101,12 +96,12 @@ async fn get_customize(
 }
 
 /// 生成JWT Token
-pub fn generate_jwt_token(jwt_user_dto: &JwtUserDTO) -> Result<String> {
+pub fn generate_jwt_token(jwt_user_dto: &JwtUserDTO, token_id: &str) -> Result<String> {
     let jwt_config = APP_CONFIG.jwt.clone();
     let expiration = Utc::now() + chrono::Duration::days(jwt_config.token_validity_in_seconds as i64);
     let claims = JwtClaims {
         exp: expiration.timestamp() as usize,
-        uuid: uuid::Uuid::new_v4().to_string(),
+        uuid: token_id.to_string(),
         username: jwt_user_dto.user.username.clone(),
     };
 

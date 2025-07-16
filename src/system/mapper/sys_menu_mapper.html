@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+<mapper>
+  <select id="select_link">
+    SELECT m.*
+    FROM sys_roles_menus rm
+    INNER JOIN sys_menu m ON rm.menu_id = m.menu_id
+    <where>
+        ` rm.role_id IN `
+        <foreach item="item" index="" collection="role_ids" separator="," open="(" close=")">
+            ` #{item} `
+        </foreach>
+    </where>
+    ` ORDER BY m.menu_sort ASC `
+  </select>
+
+  <select id="select_link_role">
+    SELECT m.*
+    FROM sys_roles_menus rm
+    INNER JOIN sys_menu m ON rm.menu_id = m.menu_id
+    <where>
+        ` rm.role_id IN `
+        <foreach item="item" index="" collection="role_ids" separator="," open="(" close=")">
+            ` #{item} `
+        </foreach>
+        ` AND m.type != #{m_type} `
+    </where>
+    ` ORDER BY m.menu_sort ASC `
+  </select>
+</mapper>

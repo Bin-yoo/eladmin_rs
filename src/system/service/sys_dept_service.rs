@@ -4,7 +4,8 @@ use rbs::value;
 use anyhow::{Ok, Result};
 
 use crate::RB;
-use crate::system::domain::entity::sys_dept::{DeptDto, SysDept};
+use crate::system::domain::entity::sys_dept::SysDept;
+use crate::system::domain::dto::sys_dept::DeptDto;
 
 
 /// 通过角色ID查询部门

@@ -2,6 +2,7 @@ pub mod util;
 pub mod system;
 pub mod security;
 pub mod config;
+pub mod middleware;
 
 // pub use 重新导出
 pub use util::app_config::APP_CONFIG;
