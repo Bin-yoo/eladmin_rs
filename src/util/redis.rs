@@ -151,6 +151,7 @@ impl RedisInstance {
     /// use deadpool_redis::redis::cmd;
     ///
     /// RedisInstance::init_redis();
+    /// RedisInstance::set("test_key", "42").await.unwrap();
     /// let value: Option<String> = RedisInstance::get("test_key").await.unwrap();
     /// assert_eq!(value, Some("42".to_string()));
     /// ```
@@ -209,6 +210,33 @@ impl RedisInstance {
         cmd("EXPIRE").arg(key).arg(renew).query_async::<()>(&mut conn).await?;
         Ok(())
     }
+    
+    /// 删除redis某个key
+    ///
+    /// # 参数
+    /// - `key`：Redis 中的键，字符串切片类型。
+    ///
+    /// # 返回值
+    /// - `Ok(()))`：设置ttl成功。
+    /// - `Err(RedisError)`：操作失败时返回的错误信息。
+    ///
+    /// # 示例
+    /// ```rust
+    /// use deadpool_redis::redis::cmd;
+    ///
+    /// RedisInstance::init_redis();
+    /// RedisInstance::set("test_key", "42").await.unwrap();
+    /// let value: Option<String> = RedisInstance::get("test_key").await.unwrap();
+    /// assert_eq!(value, Some("42".to_string()));
+    /// RedisInstance::delete("test_key").await.unwrap();
+    /// let value: Option<String> = RedisInstance::get("test_key").await.unwrap();
+    /// assert_eq!(value, None);
+    /// ``` 
+    pub async fn delete(key: &str) -> Result<()> {
+        let mut conn = RedisInstance::get_connection().await?;
+        cmd("DEL").arg(key).query_async::<()>(&mut conn).await?;
+        Ok(())
+    }
 }
 
 fn build_redis_uri(base: &str, db: &u32, timeout_seconds: &u32, max_size: &u32) -> String {
@@ -252,5 +280,16 @@ mod tests {
         RedisInstance::init_redis();
         let value: Option<String> = RedisInstance::get("test_key").await.unwrap();
         assert_eq!(value, Some("42".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_redis_del() {
+        RedisInstance::init_redis();
+        RedisInstance::set("test_key", "42").await.unwrap();
+        let value: Option<String> = RedisInstance::get("test_key").await.unwrap();
+        assert_eq!(value, Some("42".to_string()));
+        RedisInstance::delete("test_key").await.unwrap();
+        let value: Option<String> = RedisInstance::get("test_key").await.unwrap();
+        assert_eq!(value, None);
     }
 }

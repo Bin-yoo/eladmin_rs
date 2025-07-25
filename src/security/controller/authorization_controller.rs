@@ -1,8 +1,12 @@
-use salvo::{handler, writing::Json, Request};
+use salvo::{handler, prelude::JwtAuthDepotExt, writing::Json, Depot, Request};
 use uuid::Uuid;
 use anyhow::Result;
 
-use crate::security::{domain::{dto::auth_user::AuthUserDTO, vo::{code_result::CodeResultVO, login_resp::LoginRespVo}}, service::authorization_service};
+use crate::security::domain::dto::{auth_user::AuthUserDTO, jwt_user::{JwtUserDTO, JwtClaims}};
+use crate::security::domain::vo::{code_result::CodeResultVO, login_resp::LoginRespVo};
+use crate::security::service::authorization_service;
+use crate::system::domain::dto::sys_user::SysUserDTO;
+
 use crate::{APP_CONFIG, RedisInstance, AppError};
 
 use crate::util::rsa_utils;
@@ -71,9 +75,25 @@ pub async fn login(req: &mut Request) -> Result<Json<LoginRespVo>, AppError> {
     // 缓存用户信息
     RedisInstance::set_with_expiration(&cache_key, &jwt_user.user, APP_CONFIG.jwt.token_validity_in_seconds / 1000).await?;
 
+    // 删除验证码
+    RedisInstance::delete(&payload.uuid).await?;
     // 构建返回结果
     Ok(Json(LoginRespVo{
         token,
         user: jwt_user
     }))
+}
+
+#[handler]
+pub async fn get_user_info(depot: &mut Depot) -> Result<Json<JwtUserDTO>, AppError> {
+    let user_info = depot.obtain::<SysUserDTO>().unwrap();
+    Ok(Json(authorization_service::load_user_by_username(&user_info.username).await?))
+}
+
+#[handler]
+pub async fn logout(depot: &mut Depot) -> Result<(), AppError> {
+    let data = depot.jwt_auth_data::<JwtClaims>().unwrap();
+    let cache_key = format!("{}{}", APP_CONFIG.jwt.online_key.clone(), data.claims.uuid);
+    RedisInstance::delete(&cache_key).await?;
+    Ok(())
 }

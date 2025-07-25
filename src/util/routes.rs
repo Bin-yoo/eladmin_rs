@@ -56,17 +56,26 @@ fn jwt_auth_handler() -> JwtAuth<JwtClaims, ConstDecoder> {
 /// 系统：系统授权接口
 fn auth_router() -> Router {
     Router::new()
-    .path("auth")
-    .push(Router::with_path("code").get(authorization_controller::get_code))
-    .push(Router::with_path("login").post(authorization_controller::login))
+        .path("auth")
+        .push(Router::with_path("code").get(authorization_controller::get_code))
+        .push(Router::with_path("login").post(authorization_controller::login))
+        .push(Router::with_path("info")
+            .hoop(jwt_auth_handler())
+            .hoop(check_token)
+            .get(authorization_controller::get_user_info)
+        )
+        .push(Router::with_path("logout")
+            .hoop(jwt_auth_handler())
+            .delete(authorization_controller::logout)
+        )
 }
 
 /// 系统：菜单管理
 fn menu_router() -> Router {
     Router::new()
-    .path("api")
-    .path("menus")
-    .hoop(jwt_auth_handler())
-    .hoop(check_token)
-    .push(Router::with_path("build").get(sys_menu_controller::build_menus))
+        .path("api")
+        .path("menus")
+        .hoop(jwt_auth_handler())
+        .hoop(check_token)
+        .push(Router::with_path("build").get(sys_menu_controller::build_menus))
 }

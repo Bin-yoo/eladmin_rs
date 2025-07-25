@@ -29,7 +29,7 @@ fn verify_password(db_pass: &str, input_pass: &str) -> bool {
 }
 
 /// 通过用户名查询用户表
-async fn load_user_by_username(username: &str) -> Result<JwtUserDTO, AppError> {
+pub async fn load_user_by_username(username: &str) -> Result<JwtUserDTO, AppError> {
     let Some(user) = sys_user_service::find_by_name(username).await?
     else {
         return Err(AppError::UsernameNotFound);
