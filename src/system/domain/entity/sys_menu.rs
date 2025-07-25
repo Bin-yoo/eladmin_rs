@@ -4,6 +4,7 @@ use rbatis::{crud, rbdc::DateTime};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SysMenu {
     /// 菜单ID
     pub menu_id: i64,

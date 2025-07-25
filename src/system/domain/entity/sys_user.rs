@@ -5,6 +5,7 @@ use rbatis::{crud, rbdc::DateTime};
 // use crate::util::deserialize::deserialize_num_to_bool;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SysUser {
     /// 用户ID
     pub user_id: i64,

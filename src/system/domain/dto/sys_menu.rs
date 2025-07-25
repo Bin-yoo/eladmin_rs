@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate::system::domain::entity::sys_menu::{MenuType, SysMenu};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MenuDTO {
     /// 菜单ID
     pub id: i64,

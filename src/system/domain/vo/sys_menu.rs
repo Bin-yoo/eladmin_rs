@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// 构建前端路由时用到
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct MenuVO {
     /// 菜单标题或者组件名称
     pub name: Option<String>,
@@ -26,6 +27,7 @@ pub struct MenuVO {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct MenuMetaVo {
     /// 菜单标题
     pub title: Option<String>,

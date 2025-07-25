@@ -13,6 +13,7 @@ pub struct JwtClaims {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct JwtUserDTO {
     /// 用户名
     pub user: SysUserDTO,

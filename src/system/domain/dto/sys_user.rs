@@ -6,6 +6,7 @@ use crate::system::domain::entity::sys_user::SysUser;
 
 /// 用户DTO
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SysUserDTO {
     /// 用户ID
     pub user_id: i64,
